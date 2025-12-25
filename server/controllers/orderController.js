@@ -421,7 +421,7 @@ const getAllOrders = async (req, res) => {
         }
 
         const orders = await Order.find(query)
-            .populate('user', 'name email')
+            .populate('user', 'name email phone')
             .populate('stall', 'name')
             .sort({ createdAt: -1 });
         res.json(orders);

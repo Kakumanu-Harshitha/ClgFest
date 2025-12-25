@@ -242,12 +242,7 @@ const HomePage = () => {
                         </div>
                         <span className="font-bold text-lg group-hover:text-yellow-600 transition-colors text-gray-700">Track Orders</span>
                     </Link>
-                    <Link to="/profile" className="flex flex-col items-center group">
-                        <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110 shadow-sm">
-                            <MapPin className="text-yellow-600" size={32} />
-                        </div>
-                        <span className="font-bold text-lg group-hover:text-yellow-600 transition-colors text-gray-700">Fest Map</span>
-                    </Link>
+
                 </div>
             </div>
 
