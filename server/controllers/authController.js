@@ -167,7 +167,8 @@ const getUserProfile = async (req, res) => {
             phone: user.phone,
             role: user.role,
             branch: user.branch,
-            college: user.college
+            college: user.college,
+            stallId: user.stallId
         });
     } else {
         res.status(404).json({ message: 'User not found' });

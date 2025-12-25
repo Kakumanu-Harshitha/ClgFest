@@ -56,16 +56,54 @@ const StallOwnerDashboard = () => {
         setLoadingStates(prev => ({ ...prev, stall: true }));
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await apiClient.get(`/api/stalls/${user.stallId}/owner`, config);
-            setStall(data);
-        } catch {
-            try {
-                const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                const { data } = await apiClient.get(`/api/stalls/owner/me`, config);
-                setStall(data);
-            } catch (e) {
-                console.error(e);
+            let data;
+            
+            // First try to get the stall by the ID stored in user.stallId
+            if (user.stallId) {
+                try {
+                    const response = await apiClient.get(`/api/stalls/${user.stallId}/owner`, config);
+                    data = response.data;
+                    setStall(data);
+                } catch (error) {
+                    // If the error is 403 (Forbidden), it means the user is not authorized for this stall
+                    // This is expected when the user's stallId doesn't match the actual stall owner
+                    if (error.response?.status === 403) {
+                        console.log('User not authorized for stall by ID, trying owner relationship...');
+                        // If that fails, try to get the stall by owner relationship
+                        try {
+                            const response = await apiClient.get(`/api/stalls/owner/me`, config);
+                            data = response.data;
+                            setStall(data);
+                        } catch (error2) {
+                            console.error('Error fetching stall by owner relationship:', error2);
+                            setToast({ type: 'error', message: 'No stall assigned to you yet. Contact admin.' });
+                        }
+                    } else {
+                        // For other errors (like 404), try the fallback
+                        console.error('Error fetching stall by user.stallId:', error);
+                        try {
+                            const response = await apiClient.get(`/api/stalls/owner/me`, config);
+                            data = response.data;
+                            setStall(data);
+                        } catch (error2) {
+                            console.error('Error fetching stall by owner relationship:', error2);
+                            setToast({ type: 'error', message: 'No stall assigned to you yet. Contact admin.' });
+                        }
+                    }
+                }
+            } else {
+                // If no stallId in user profile, try to get stall by owner relationship
+                try {
+                    const response = await apiClient.get(`/api/stalls/owner/me`, config);
+                    data = response.data;
+                    setStall(data);
+                } catch (error) {
+                    console.error('Error fetching stall by owner relationship:', error);
+                    setToast({ type: 'error', message: 'No stall assigned to you yet. Contact admin.' });
+                }
             }
+        } catch (error) {
+            console.error('Unexpected error in fetchStall:', error);
         } finally {
             setLoadingStates(prev => ({ ...prev, stall: false }));
         }
@@ -74,14 +112,22 @@ const StallOwnerDashboard = () => {
     const fetchOrders = async (sid) => {
         setLoadingStates(prev => ({ ...prev, orders: true }));
         try {
-            if (!sid) return;
+            if (!sid) {
+                setToast({ type: 'error', message: 'No stall assigned to fetch orders for.' });
+                return;
+            }
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const { data } = await apiClient.get(`/api/orders/stall/${sid}`, config);
             // Filter to only include orders with active tokens
             const ordersWithTokens = data.filter(order => order.tokenNumber);
             setOrders(ordersWithTokens);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching orders:', error);
+            if (error.response?.status === 404) {
+                setToast({ type: 'error', message: 'Stall not found. Please contact admin.' });
+            } else if (error.response?.status === 403) {
+                setToast({ type: 'error', message: 'Not authorized to access this stall.' });
+            }
         } finally {
             setLoadingStates(prev => ({ ...prev, orders: false }));
         }
@@ -90,21 +136,34 @@ const StallOwnerDashboard = () => {
     const fetchAllOrders = async (sid) => {
         setLoadingStates(prev => ({ ...prev, allOrders: true }));
         try {
-            if (!sid) return;
+            if (!sid) {
+                setToast({ type: 'error', message: 'No stall assigned to fetch orders for.' });
+                return;
+            }
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const { data } = await apiClient.get(`/api/orders/stall/${sid}`, config);
             setAllOrders(data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching all orders:', error);
+            if (error.response?.status === 404) {
+                setToast({ type: 'error', message: 'Stall not found. Please contact admin.' });
+            } else if (error.response?.status === 403) {
+                setToast({ type: 'error', message: 'Not authorized to access this stall.' });
+            }
         } finally {
             setLoadingStates(prev => ({ ...prev, allOrders: false }));
         }
     };
 
     const toggleOpen = async () => {
+        if (!stall || !stall._id) {
+            setToast({ type: 'error', message: 'No stall assigned to update. Please contact admin.' });
+            return;
+        }
+        
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await apiClient.put(`/api/stalls/${user.stallId}/open`, { isOpen: !stall.isOpen }, config);
+            await apiClient.put(`/api/stalls/${stall._id}/open`, { isOpen: !stall.isOpen }, config);
             fetchStall(); // Refresh stall data immediately after update
             setToast({ type: 'success', message: 'Stall status updated successfully!' });
         } catch (error) {
@@ -114,9 +173,14 @@ const StallOwnerDashboard = () => {
     };
 
     const togglePreBooking = async () => {
+        if (!stall || !stall._id) {
+            setToast({ type: 'error', message: 'No stall assigned to update. Please contact admin.' });
+            return;
+        }
+        
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await apiClient.put(`/api/stalls/${user.stallId}/prebooking`, { preBookingEnabled: !stall.preBookingEnabled }, config);
+            await apiClient.put(`/api/stalls/${stall._id}/prebooking`, { preBookingEnabled: !stall.preBookingEnabled }, config);
             fetchStall(); // Refresh stall data immediately after update
             setToast({ type: 'success', message: 'Pre-booking status updated successfully!' });
         } catch (error) {
@@ -128,11 +192,20 @@ const StallOwnerDashboard = () => {
     const fetchFeedback = async (sid) => {
         setLoadingStates(prev => ({ ...prev, feedback: true }));
         try {
-            if (!sid) return;
-            const { data } = await apiClient.get(`/api/feedback/stall/${sid}`);
+            if (!sid) {
+                setToast({ type: 'error', message: 'No stall assigned to fetch feedback for.' });
+                return;
+            }
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const { data } = await apiClient.get(`/api/feedback/stall/${sid}`, config);
             setFeedback(data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching feedback:', error);
+            if (error.response?.status === 404) {
+                setToast({ type: 'error', message: 'Stall not found. Please contact admin.' });
+            } else if (error.response?.status === 403) {
+                setToast({ type: 'error', message: 'Not authorized to access this stall.' });
+            }
         } finally {
             setLoadingStates(prev => ({ ...prev, feedback: false }));
         }
@@ -140,20 +213,16 @@ const StallOwnerDashboard = () => {
 
     useEffect(() => {
         if (!user || user.role !== 'stall_owner') return;
-        if (user.stallId) {
-            fetchStall();
-        } else {
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            apiClient.get(`/api/stalls/owner/me`, config)
-                .then(({ data }) => setStall(data))
-                .catch(() => {});
-        }
+        fetchStall();
     }, [user]);
 
     useEffect(() => {
         if (!user || user.role !== 'stall_owner') return;
         const sid = stall?._id || user.stallId;
-        if (!sid) return;
+        if (!sid) {
+            setToast({ type: 'error', message: 'No stall assigned to you. Please contact admin.' });
+            return;
+        }
         
         // Initial data fetch
         fetchOrders(sid);
@@ -336,6 +405,10 @@ const StallOwnerDashboard = () => {
     const fetchOffers = async (sid) => {
         setLoadingStates(prev => ({ ...prev, offers: true }));
         try {
+            if (!sid) {
+                setToast({ type: 'error', message: 'No stall assigned to fetch offers for.' });
+                return;
+            }
             const { data } = await apiClient.get('/api/offers');
             const combined = [ ...(data.globalOffers || []), ...(data.stallOffers || []) ];
             const mine = combined.filter(o => {
@@ -344,7 +417,8 @@ const StallOwnerDashboard = () => {
             });
             setOffers(mine);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching offers:', error);
+            setToast({ type: 'error', message: 'Failed to load offers' });
         } finally {
             setLoadingStates(prev => ({ ...prev, offers: false }));
         }
@@ -375,6 +449,12 @@ const StallOwnerDashboard = () => {
 
     const createOffer = async (e) => {
         e.preventDefault();
+        
+        if (!stall || !stall._id) {
+            setToast({ type: 'error', message: 'No stall assigned to create offers for. Please contact admin.' });
+            return;
+        }
+        
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const payload = {
@@ -383,15 +463,15 @@ const StallOwnerDashboard = () => {
                 couponCode: newOffer.couponCode,
                 discountPercentage: Number(newOffer.discountPercentage) || 0,
                 validUntil: newOffer.validUntil ? new Date(newOffer.validUntil) : undefined,
-                stall: (stall?._id || user.stallId)
+                stall: stall._id  // Use stall._id instead of the fallback to user.stallId
             };
             await apiClient.post('/api/offers', payload, config);
             setNewOffer({ title: '', description: '', couponCode: '', discountPercentage: '', validUntil: '' });
-            const sid = stall?._id || user.stallId;
-            fetchOffers(sid);
+            fetchOffers(stall._id);
             setToast({ type: 'success', message: 'Offer published successfully!' });
         } catch (error) {
-            setToast({ type: 'error', message: error.response?.data?.message || 'Failed to publish offer' });
+            console.error('Create offer error:', error);
+            setToast({ type: 'error', message: error.response?.data?.message || 'Failed to create offer' });
         }
     };
 
