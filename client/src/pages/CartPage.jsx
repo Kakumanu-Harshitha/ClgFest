@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingCart, Clock, CreditCard, MapPin, IndianRupee } from 'lucide-react';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
@@ -26,7 +26,7 @@ const CartPage = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const { data } = await axios.get('http://localhost:5000/api/settings');
+                const { data } = await apiClient.get('/api/settings');
                 if (data && data.upiQrImage) {
                     setUpiQr(data.upiQrImage);
                 }
@@ -40,7 +40,7 @@ const CartPage = () => {
         const fetchStall = async () => {
             try {
                 if (!stallId) return;
-                const { data } = await axios.get(`http://localhost:5000/api/stalls/${stallId}`);
+                const { data } = await apiClient.get(`/api/stalls/${stallId}`);
                 if (data && data.name) {
                     setStallName(data.name);
                 }
@@ -69,7 +69,7 @@ const CartPage = () => {
                 setCouponStatus('');
                 return;
             }
-            const { data } = await axios.get('http://localhost:5000/api/offers');
+            const { data } = await apiClient.get('/api/offers');
             const combined = [ ...(data.globalOffers || []), ...(data.stallOffers || []) ];
             const match = combined.find(o => {
                 const c = (o.couponCode || '').toUpperCase();
@@ -123,7 +123,7 @@ const CartPage = () => {
                 couponCode: appliedOffer ? appliedOffer.couponCode : (couponCode.trim() || undefined)
             };
             
-            const orderResponse = await axios.post('http://localhost:5000/api/orders', orderData, config);
+            const orderResponse = await apiClient.post('/api/orders', orderData, config);
             
             // Load Razorpay script if not already loaded
             if (!window.Razorpay) {
@@ -162,8 +162,8 @@ const CartPage = () => {
                     };
                     
                     // Update order with transaction ID
-                    const updateResponse = await axios.put(
-                        `http://localhost:5000/api/orders/${orderId}/status`, 
+                    const updateResponse = await apiClient.put(
+                        `/api/orders/${orderId}/status`, 
                         { 
                             paymentStatus: 'Paid',
                             transactionId: response.razorpay_payment_id
@@ -211,7 +211,7 @@ const CartPage = () => {
                 }
             };
             
-            const { data } = await axios.post('http://localhost:5000/api/payments/create-payment-intent', {
+            const { data } = await apiClient.post('/api/payments/create-payment-intent', {
                 amount: finalTotal,
                 currency: 'inr',
                 description: `Payment for order at ${stallName || 'Festival Stall'}`,
@@ -286,7 +286,7 @@ const CartPage = () => {
                 }
             };
             
-            await axios.post('http://localhost:5000/api/payments/payment-failure', {
+            await apiClient.post('/api/payments/payment-failure', {
                 reason: error.message
             }, config);
         } catch (err) {
@@ -324,7 +324,7 @@ const CartPage = () => {
                 }
             };
 
-            const { data } = await axios.post('http://localhost:5000/api/orders', orderData, config);
+            const { data } = await apiClient.post('/api/orders', orderData, config);
             
             clearCart();
             window.showToast('success', 'Order placed successfully!');
@@ -384,7 +384,7 @@ const CartPage = () => {
                 }
             };
 
-            const { data } = await axios.post('http://localhost:5000/api/orders', orderData, config);
+            const { data } = await apiClient.post('/api/orders', orderData, config);
             
             clearCart();
             window.showToast('success', 'Order placed successfully!');

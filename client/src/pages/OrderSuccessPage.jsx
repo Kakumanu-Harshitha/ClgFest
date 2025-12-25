@@ -2,7 +2,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle, Home, Download, Printer, Clock, CreditCard, IndianRupee } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 
 const OrderSuccessPage = () => {
     const location = useLocation();
@@ -22,7 +22,7 @@ const OrderSuccessPage = () => {
                         Authorization: `Bearer ${userInfo.token}`,
                     },
                 };
-                const { data } = await axios.get(`http://localhost:5000/api/orders/${orderId}`, config);
+                const { data } = await apiClient.get(`/api/orders/${orderId}`, config);
                 console.log("Fetched order data:", data); // Add this line
                 setOrder(data);
             } catch (err) {

@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import AuthContext from '../context/AuthContext';
 import { 
   ClipboardList, 
@@ -47,7 +47,7 @@ const CustomerDashboard = () => {
       setLoading(true);
       
       // Fetch user's orders
-      const ordersResponse = await axios.get('http://localhost:5000/api/orders/myorders', {
+      const ordersResponse = await apiClient.get('/api/orders/myorders', {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       
@@ -75,7 +75,7 @@ const CustomerDashboard = () => {
       const favoriteStallsDetails = [];
       for (const stallId of favoriteStallIds) {
         try {
-          const stallResponse = await axios.get(`http://localhost:5000/api/stalls/${stallId}`);
+          const stallResponse = await apiClient.get(`/api/stalls/${stallId}`);
           favoriteStallsDetails.push({ ...stallResponse.data, orderCount: stallCounts[stallId] });
         } catch (error) {
           console.error('Error fetching stall details:', error);

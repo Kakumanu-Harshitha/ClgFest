@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import AuthContext from '../context/AuthContext';
 import { Search, MapPin, ChevronRight, Utensils, ShoppingBag, Zap } from 'lucide-react';
 
@@ -23,8 +23,8 @@ const HomePage = () => {
         const fetchData = async () => {
             try {
                 const [offersRes, stallsRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/offers'),
-                    axios.get('http://localhost:5000/api/stalls')
+                    apiClient.get('/api/offers'),
+                    apiClient.get('/api/stalls')
                 ]);
                 
                 const combinedOffers = [ ...(offersRes.data.globalOffers || []), ...(offersRes.data.stallOffers || []) ];

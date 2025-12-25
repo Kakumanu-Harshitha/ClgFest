@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import { Loader, Plus, CheckCircle, Minus, PlusCircle, Star, Clock, IndianRupee } from 'lucide-react';
 import CartContext from '../context/CartContext';
 
@@ -16,17 +16,17 @@ const StallDetailsPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const stallRes = await axios.get(`http://localhost:5000/api/stalls/${id}`);
+                const stallRes = await apiClient.get(`/api/stalls/${id}`);
                 setStall(stallRes.data);
 
-                const reviewsRes = await axios.get(`http://localhost:5000/api/feedback/stall/${id}`);
+                const reviewsRes = await apiClient.get(`/api/feedback/stall/${id}`);
                 setReviews(reviewsRes.data);
                 if (reviewsRes.data.length > 0) {
                     const total = reviewsRes.data.reduce((acc, curr) => acc + curr.rating, 0);
                     setAvgRating((total / reviewsRes.data.length).toFixed(1));
                 }
                 // Fetch active offers for this stall
-                const offersRes = await axios.get('http://localhost:5000/api/offers');
+                const offersRes = await apiClient.get('/api/offers');
                 const combined = [ ...(offersRes.data.globalOffers || []), ...(offersRes.data.stallOffers || []) ];
                 const stallOffers = combined.filter(o => {
                     const sid = typeof o.stall === 'object' ? o.stall?._id || o.stall : o.stall;

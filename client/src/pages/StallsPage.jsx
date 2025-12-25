@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import { Loader, Star, Clock, ShoppingCart, Search, Filter, SortAsc, MapPin } from 'lucide-react';
 
 // Skeleton loader component for stalls
@@ -40,11 +40,11 @@ const StallsPage = () => {
     useEffect(() => {
         const fetchStalls = async () => {
             try {
-                const { data } = await axios.get('http://localhost:5000/api/stalls');
+                const { data } = await apiClient.get('/api/stalls');
                 setStalls(data);
                 console.log('Fetched stalls:', data);
                 // Fetch active offers and index by stall
-                const offersRes = await axios.get('http://localhost:5000/api/offers');
+                const offersRes = await apiClient.get('/api/offers');
                 const combined = [ ...(offersRes.data.globalOffers || []), ...(offersRes.data.stallOffers || []) ];
                 const map = {};
                 for (const o of combined) {

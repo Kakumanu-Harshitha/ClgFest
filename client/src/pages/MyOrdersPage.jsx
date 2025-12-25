@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import AuthContext from '../context/AuthContext';
 import { Loader, Star, X } from 'lucide-react';
 
@@ -22,10 +22,10 @@ const MyOrdersPage = () => {
                 const config = {
                     headers: { Authorization: `Bearer ${user.token}` }
                 };
-                const { data } = await axios.get('http://localhost:5000/api/orders/myorders', config);
+                const { data } = await apiClient.get('/api/orders/myorders', config);
                 setOrders(data);
                 const results = await Promise.allSettled(
-                    data.map(o => axios.get(`http://localhost:5000/api/feedback/order/${o._id}`, config))
+                    data.map(o => apiClient.get(`/api/feedback/order/${o._id}`, config))
                 );
                 const map = {};
                 data.forEach((o, idx) => {
@@ -61,7 +61,7 @@ const MyOrdersPage = () => {
         setSubmitting(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/feedback', {
+            await apiClient.post('/api/feedback', {
                 orderId: ratingModal.orderId,
                 rating,
                 comment
@@ -69,7 +69,7 @@ const MyOrdersPage = () => {
             setToast({ type: 'success', message: 'Feedback submitted successfully!' });
             setRatingModal({ show: false, orderId: null });
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/feedback/order/${ratingModal.orderId}`, config);
+                const { data } = await apiClient.get(`/api/feedback/order/${ratingModal.orderId}`, config);
                 setOrderFeedback(prev => ({ ...prev, [ratingModal.orderId]: data || null }));
             } catch (e) {
                 console.error(e);

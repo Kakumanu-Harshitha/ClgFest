@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
@@ -16,7 +16,7 @@ const ProfilePage = () => {
         }
         const fetchProfile = async () => {
             try {
-                const { data } = await axios.get('http://localhost:5000/api/auth/profile', {
+                const { data } = await apiClient.get('/api/auth/profile', {
                     headers: { Authorization: `Bearer ${user.token}` }
                 });
                 setProfile(data);

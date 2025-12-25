@@ -1,5 +1,5 @@
 import { createContext, useState, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 
 const AuthContext = createContext();
 
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
         body.password = password;
 
-        const { data } = await axios.post('http://localhost:5000/api/auth/login', body, config);
+        const { data } = await apiClient.post('/api/auth/login', body, config);
 
         setUser(data);
         localStorage.setItem('userInfo', JSON.stringify(data));
@@ -39,8 +39,8 @@ export const AuthProvider = ({ children }) => {
             },
         };
 
-        const { data } = await axios.post(
-            'http://localhost:5000/api/auth/register',
+        const { data } = await apiClient.post(
+            '/api/auth/register',
             { name, email, phone, password, role, branch, college }, // Removed otp parameter
             config
         );
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
     const resetPassword = async (phone, newPassword) => {
         const config = { headers: { 'Content-Type': 'application/json' } };
-        await axios.post('http://localhost:5000/api/auth/reset-password', { phone, newPassword }, config);
+        await apiClient.post('/api/auth/reset-password', { phone, newPassword }, config);
     };
 
     const logout = () => {

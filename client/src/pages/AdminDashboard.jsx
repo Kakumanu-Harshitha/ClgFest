@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
     const fetchUsers = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/users', config);
+            const { data } = await apiClient.get('/api/users', config);
             setUsers(data);
         } catch (error) {
             console.error(error);
@@ -90,20 +90,20 @@ const AdminDashboard = () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const results = await Promise.allSettled([
-                axios.get('http://localhost:5000/api/stalls/admin', config),
-                axios.get('http://localhost:5000/api/orders/admin/analytics', config),
-                axios.get('http://localhost:5000/api/offers'),
-                axios.get('http://localhost:5000/api/feedback', config),
-                axios.get('http://localhost:5000/api/settings'),
-                axios.get('http://localhost:5000/api/orders/admin/all', { 
+                apiClient.get('/api/stalls/admin', config),
+                apiClient.get('/api/orders/admin/analytics', config),
+                apiClient.get('/api/offers'),
+                apiClient.get('/api/feedback', config),
+                apiClient.get('/api/settings'),
+                apiClient.get('/api/orders/admin/all', { 
                     headers: config.headers,
                     params: {
                         customerName: customerSearchTerm,
                         tokenId: tokenIdSearchTerm ? tokenIdSearchTerm.replace(/[^0-9]/g, '') : ''
                     }
                 }),
-                axios.get('http://localhost:5000/api/luckydraw/settings', config),
-                axios.get('http://localhost:5000/api/luckydraw/history', config)
+                apiClient.get('/api/luckydraw/settings', config),
+                apiClient.get('/api/luckydraw/history', config)
             ]);
             const [stallsRes, analyticsRes, offersRes, feedbackRes, settingsRes, ordersRes, luckyDrawSettingsRes, luckyDrawHistoryRes] = results;
             if (stallsRes.status === 'fulfilled') setStalls(stallsRes.value.data);
@@ -135,7 +135,7 @@ const AdminDashboard = () => {
             const params = {};
             if (luckyDrawStall) params.stallId = luckyDrawStall;
             
-            const { data } = await axios.get('http://localhost:5000/api/orders/admin/luckydraw', { 
+            const { data } = await apiClient.get('/api/orders/admin/luckydraw', { 
                 headers: config.headers,
                 params 
             });
@@ -149,7 +149,7 @@ const AdminDashboard = () => {
     const toggleApproval = async (stallId, next) => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put(`http://localhost:5000/api/stalls/${stallId}/approve`, { isApproved: next }, config);
+            await apiClient.put(`/api/stalls/${stallId}/approve`, { isApproved: next }, config);
             fetchAllData();
         } catch (error) {
             setToast({ type: 'error', message: error.response?.data?.message || 'Failed to update approval' });
@@ -161,7 +161,7 @@ const AdminDashboard = () => {
         setSubmittingReply(feedbackId);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put(`http://localhost:5000/api/feedback/${feedbackId}/respond`, {
+            await apiClient.put(`/api/feedback/${feedbackId}/respond`, {
                 response: replyText[feedbackId]
             }, config);
             
@@ -181,7 +181,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put('http://localhost:5000/api/settings', settings, config);
+            await apiClient.put('/api/settings', settings, config);
             setToast({ type: 'success', message: 'Settings updated successfully' });
         } catch {
             setToast({ type: 'error', message: 'Failed to update settings' });
@@ -192,7 +192,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put('http://localhost:5000/api/luckydraw/settings', {
+            await apiClient.put('/api/luckydraw/settings', {
                 luckyDrawEnabled: settings.luckyDrawEnabled,
                 luckyDrawStall: settings.luckyDrawStall,
                 luckyDrawThreshold: settings.luckyDrawThreshold
@@ -206,7 +206,7 @@ const AdminDashboard = () => {
     const triggerLuckyDraw = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const response = await axios.post('http://localhost:5000/api/luckydraw/trigger', {}, config);
+            const response = await apiClient.post('/api/luckydraw/trigger', {}, config);
             setToast({ type: 'success', message: `Lucky draw triggered! Winner: ${response.data.draw.winner.name}` });
             // Refresh data
             fetchAllData();
@@ -218,7 +218,7 @@ const AdminDashboard = () => {
     const resetLuckyDrawCounter = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/luckydraw/reset', {}, config);
+            await apiClient.post('/api/luckydraw/reset', {}, config);
             setToast({ type: 'success', message: 'Lucky draw counter reset successfully' });
             // Refresh data
             fetchAllData();
@@ -238,10 +238,10 @@ const AdminDashboard = () => {
                 couponCode: newOffer.couponCode,
                 validUntil: newOffer.validUntil ? new Date(newOffer.validUntil) : undefined
             };
-            await axios.post('http://localhost:5000/api/offers', payload, config);
+            await apiClient.post('/api/offers', payload, config);
             setToast({ type: 'success', message: 'Offer created!' });
             setNewOffer({ title: '', description: '', discountPercentage: '', couponCode: '', validUntil: '' });
-            const { data } = await axios.get('http://localhost:5000/api/offers');
+            const { data } = await apiClient.get('/api/offers');
             const combined = [ ...(data.globalOffers || []), ...(data.stallOffers || []) ];
             setOffers(combined);
         } catch {
@@ -253,7 +253,7 @@ const AdminDashboard = () => {
         if (!window.confirm('Are you sure?')) return;
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.delete(`http://localhost:5000/api/offers/${id}`, config);
+            await apiClient.delete(`/api/offers/${id}`, config);
             setOffers(offers.filter(o => o._id !== id));
         } catch {
             setToast({ type: 'error', message: 'Failed to delete offer' });
@@ -269,7 +269,7 @@ const AdminDashboard = () => {
         setCreatingStall(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/stalls', newStall, config);
+            await apiClient.post('/api/stalls', newStall, config);
             setToast({ type: 'success', message: 'Stall created successfully' });
             setNewStall({ name: '', description: '', image: '', ownerId: '', phone: '' });
             fetchAllData();
@@ -284,7 +284,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.post('http://localhost:5000/api/users', newUser, config);
+            const { data } = await apiClient.post('/api/users', newUser, config);
             setToast({ type: 'success', message: 'User created successfully' });
             setUsers([...users, data]);
             setNewStall({ ...newStall, ownerId: data._id });
@@ -301,7 +301,7 @@ const AdminDashboard = () => {
         try {
             setActionLoading(prev => ({ ...prev, [orderId]: { ...(prev[orderId] || {}), payment: true } }));
             const config = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` } };
-            const { data: updated } = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { paymentStatus: newStatus }, config);
+            const { data: updated } = await apiClient.put(`/api/orders/${orderId}/status`, { paymentStatus: newStatus }, config);
             
             setAllOrders(curr => curr.map(o => (o._id === orderId ? updated : o)));
             setToast({ type: 'success', message: 'Payment status updated successfully!' });
@@ -317,7 +317,7 @@ const AdminDashboard = () => {
         try {
             setActionLoading(prev => ({ ...prev, [orderId]: { ...(prev[orderId] || {}), status: true } }));
             const config = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` } };
-            const { data: updated } = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, config);
+            const { data: updated } = await apiClient.put(`/api/orders/${orderId}/status`, { status: newStatus }, config);
             
             setAllOrders(curr => curr.map(o => (o._id === orderId ? updated : o)));
             setToast({ type: 'success', message: 'Order status updated successfully!' });

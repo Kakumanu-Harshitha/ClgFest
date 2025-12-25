@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import AuthContext from '../context/AuthContext';
  
 import { Edit, Trash2, Plus, X, Utensils, ClipboardList, Calendar, BarChart2, CheckCircle, Clock, MessageSquare, Tag } from 'lucide-react';
@@ -56,12 +56,12 @@ const StallOwnerDashboard = () => {
         setLoadingStates(prev => ({ ...prev, stall: true }));
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get(`http://localhost:5000/api/stalls/${user.stallId}/owner`, config);
+            const { data } = await apiClient.get(`/api/stalls/${user.stallId}/owner`, config);
             setStall(data);
         } catch {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                const { data } = await axios.get(`http://localhost:5000/api/stalls/owner/me`, config);
+                const { data } = await apiClient.get(`/api/stalls/owner/me`, config);
                 setStall(data);
             } catch (e) {
                 console.error(e);
@@ -76,7 +76,7 @@ const StallOwnerDashboard = () => {
         try {
             if (!sid) return;
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get(`http://localhost:5000/api/orders/stall/${sid}`, config);
+            const { data } = await apiClient.get(`/api/orders/stall/${sid}`, config);
             // Filter to only include orders with active tokens
             const ordersWithTokens = data.filter(order => order.tokenNumber);
             setOrders(ordersWithTokens);
@@ -92,7 +92,7 @@ const StallOwnerDashboard = () => {
         try {
             if (!sid) return;
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get(`http://localhost:5000/api/orders/stall/${sid}`, config);
+            const { data } = await apiClient.get(`/api/orders/stall/${sid}`, config);
             setAllOrders(data);
         } catch (error) {
             console.error(error);
@@ -104,7 +104,7 @@ const StallOwnerDashboard = () => {
     const toggleOpen = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put(`http://localhost:5000/api/stalls/${user.stallId}/open`, { isOpen: !stall.isOpen }, config);
+            await apiClient.put(`/api/stalls/${user.stallId}/open`, { isOpen: !stall.isOpen }, config);
             fetchStall(); // Refresh stall data immediately after update
             setToast({ type: 'success', message: 'Stall status updated successfully!' });
         } catch (error) {
@@ -116,7 +116,7 @@ const StallOwnerDashboard = () => {
     const togglePreBooking = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put(`http://localhost:5000/api/stalls/${user.stallId}/prebooking`, { preBookingEnabled: !stall.preBookingEnabled }, config);
+            await apiClient.put(`/api/stalls/${user.stallId}/prebooking`, { preBookingEnabled: !stall.preBookingEnabled }, config);
             fetchStall(); // Refresh stall data immediately after update
             setToast({ type: 'success', message: 'Pre-booking status updated successfully!' });
         } catch (error) {
@@ -129,7 +129,7 @@ const StallOwnerDashboard = () => {
         setLoadingStates(prev => ({ ...prev, feedback: true }));
         try {
             if (!sid) return;
-            const { data } = await axios.get(`http://localhost:5000/api/feedback/stall/${sid}`);
+            const { data } = await apiClient.get(`/api/feedback/stall/${sid}`);
             setFeedback(data);
         } catch (error) {
             console.error(error);
@@ -144,7 +144,7 @@ const StallOwnerDashboard = () => {
             fetchStall();
         } else {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            axios.get(`http://localhost:5000/api/stalls/owner/me`, config)
+            apiClient.get(`/api/stalls/owner/me`, config)
                 .then(({ data }) => setStall(data))
                 .catch(() => {});
         }
@@ -184,7 +184,7 @@ const StallOwnerDashboard = () => {
         setSubmittingReply(feedbackId);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put(`http://localhost:5000/api/feedback/${feedbackId}/respond`, {
+            await apiClient.put(`/api/feedback/${feedbackId}/respond`, {
                 response: replyText[feedbackId]
             }, config);
             
@@ -209,10 +209,10 @@ const StallOwnerDashboard = () => {
             let response;
             
             if (isEditing) {
-                response = await axios.put(`http://localhost:5000/api/stalls/items/${editItemId}`, newItem, config);
+                response = await apiClient.put(`/api/stalls/items/${editItemId}`, newItem, config);
                 setToast({ type: 'success', message: 'Item updated successfully!' });
             } else {
-                response = await axios.post(`http://localhost:5000/api/stalls/${stall._id}/items`, newItem, config);
+                response = await apiClient.post(`/api/stalls/${stall._id}/items`, newItem, config);
                 setToast({ type: 'success', message: 'Item added successfully!' });
             }
             
@@ -237,7 +237,7 @@ const StallOwnerDashboard = () => {
         
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.delete(`http://localhost:5000/api/stalls/items/${itemId}`, config);
+            await apiClient.delete(`/api/stalls/items/${itemId}`, config);
             
             // Optimistically update the local state
             if (stall) {
@@ -278,7 +278,7 @@ const StallOwnerDashboard = () => {
         try {
             setActionLoading(prev => ({ ...prev, [orderId]: { ...(prev[orderId] || {}), status: true } }));
             const config = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` } };
-            const { data: updated } = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, config);
+            const { data: updated } = await apiClient.put(`/api/orders/${orderId}/status`, { status: newStatus }, config);
             
             // Optimistically update orders
             setOrders(curr => {
@@ -307,7 +307,7 @@ const StallOwnerDashboard = () => {
         try {
             setActionLoading(prev => ({ ...prev, [orderId]: { ...(prev[orderId] || {}), payment: true } }));
             const config = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` } };
-            const { data: updated } = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { paymentStatus: newStatus }, config);
+            const { data: updated } = await apiClient.put(`/api/orders/${orderId}/status`, { paymentStatus: newStatus }, config);
             
             setAllOrders(curr => curr.map(o => (o._id === orderId ? updated : o)));
             setOrders(curr => {
@@ -336,7 +336,7 @@ const StallOwnerDashboard = () => {
     const fetchOffers = async (sid) => {
         setLoadingStates(prev => ({ ...prev, offers: true }));
         try {
-            const { data } = await axios.get('http://localhost:5000/api/offers');
+            const { data } = await apiClient.get('/api/offers');
             const combined = [ ...(data.globalOffers || []), ...(data.stallOffers || []) ];
             const mine = combined.filter(o => {
                 const stallField = typeof o.stall === 'object' ? o.stall?._id || o.stall : o.stall;
@@ -362,7 +362,7 @@ const StallOwnerDashboard = () => {
                 } 
             };
             
-            await axios.delete(`http://localhost:5000/api/offers/${offerId}`, config);
+            await apiClient.delete(`/api/offers/${offerId}`, config);
             
             // Optimistically update the local state
             setOffers(prev => prev.filter(offer => offer._id !== offerId));
@@ -385,7 +385,7 @@ const StallOwnerDashboard = () => {
                 validUntil: newOffer.validUntil ? new Date(newOffer.validUntil) : undefined,
                 stall: (stall?._id || user.stallId)
             };
-            await axios.post('http://localhost:5000/api/offers', payload, config);
+            await apiClient.post('/api/offers', payload, config);
             setNewOffer({ title: '', description: '', couponCode: '', discountPercentage: '', validUntil: '' });
             const sid = stall?._id || user.stallId;
             fetchOffers(sid);
@@ -439,7 +439,7 @@ const StallOwnerDashboard = () => {
         try {
             setActionLoading(prev => ({ ...prev, [orderId]: { ...(prev[orderId] || {}), deliver: true } }));
             const config = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` } };
-            const { data: updated } = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { tokenStatus: 'DELIVERED' }, config);
+            const { data: updated } = await apiClient.put(`/api/orders/${orderId}/status`, { tokenStatus: 'DELIVERED' }, config);
             
             setOrders(curr => curr.filter(o => o._id !== orderId));
             setAllOrders(curr => curr.map(o => (o._id === orderId ? updated : o)));
@@ -456,7 +456,7 @@ const StallOwnerDashboard = () => {
         try {
             setActionLoading(prev => ({ ...prev, [orderId]: { ...(prev[orderId] || {}), cancel: true } }));
             const config = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` } };
-            const { data: updated } = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { tokenStatus: 'CANCELLED' }, config);
+            const { data: updated } = await apiClient.put(`/api/orders/${orderId}/status`, { tokenStatus: 'CANCELLED' }, config);
             
             setOrders(curr => curr.filter(o => o._id !== orderId));
             setAllOrders(curr => curr.map(o => (o._id === orderId ? updated : o)));
