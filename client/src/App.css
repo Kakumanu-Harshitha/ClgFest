@@ -1,0 +1,349 @@
+/* Black and Yellow Theme - Rapido Style */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fadeIn {
+  animation: fadeIn 300ms ease-out forwards;
+}
+
+/* Global Black and Yellow Theme */
+body {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.text-yellow {
+  color: #FFD700;
+}
+
+.bg-yellow {
+  background-color: #FFD700;
+}
+
+.text-black {
+  color: #000000;
+}
+
+.bg-black {
+  background-color: #000000;
+}
+
+.btn-yellow {
+  background-color: #FFD700;
+  color: #000000;
+  border: 2px solid #FFD700;
+}
+
+.btn-yellow:hover {
+  background-color: #000000;
+  color: #FFD700;
+}
+
+/* Festive Animations and UI Enhancements */
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp {
+  animation: fadeInUp 600ms ease-out both;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes toastIn {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast-enter {
+  animation: toastIn 220ms ease-out both;
+}
+
+/* Decorative confetti dots for hero */
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+.confetti.c1 { background: #FFD700; top: 12%; left: 8%; animation: float 3.5s ease-in-out infinite; }
+.confetti.c2 { background: #000000; top: 20%; right: 12%; animation: float 4s ease-in-out infinite; }
+.confetti.c3 { background: #FFD700; bottom: 18%; left: 14%; animation: float 3.2s ease-in-out infinite; }
+.confetti.c4 { background: #000000; bottom: 10%; right: 10%; animation: float 3.8s ease-in-out infinite; }
+.confetti.c5 { background: #FFD700; top: 30%; left: 45%; animation: float 4.2s ease-in-out infinite; }
+
+/* Card hover and button press effects */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+}
+.btn-press {
+  transition: transform 120ms ease, box-shadow 200ms ease;
+}
+.btn-press:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+}
+.btn-press:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Additional festive styles */
+.bg-festive-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.festive-shadow {
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.festive-border {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 0.5rem;
+}
+
+.festive-glow {
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Animated background elements */
+.bg-festive-pattern {
+  background-image: radial-gradient(#ffffff 10%, transparent 11%),
+                    radial-gradient(#ffffff 10%, transparent 11%);
+  background-size: 50px 50px;
+  background-position: 0 0, 25px 25px;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Dark Mode Styles */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: #1a202c;
+  color: #e2e8f0;
+}
+
+/* Dark mode overrides for components */
+.dark .bg-white {
+  background-color: #2d3748;
+}
+
+.dark .bg-gray-100 {
+  background-color: #2d3748;
+}
+
+.dark .bg-gray-50 {
+  background-color: #2d3748;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e0;
+}
+
+.dark .text-gray-600 {
+  color: #a0aec0;
+}
+
+.dark .border-gray-200 {
+  border-color: #4a5568;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #4a5568;
+}
+
+.dark .bg-yellow-100 {
+  background-color: #38b2ac;
+}
+
+.dark .text-yellow-800 {
+  color: #88c0d0;
+}
+
+/* Specific dark mode styles for app components */
+.dark .backdrop-blur {
+  background-color: rgba(45, 55, 72, 0.8);
+}
+
+.dark .shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Loading animations */
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Input focus styles */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Lion Animation */
+@keyframes lionBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+@keyframes lionRoar {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.lion-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lion {
+  font-size: 4rem;
+  animation: lionBounce 2s ease-in-out infinite, lionRoar 3s ease-in-out infinite;
+  text-shadow: 0 0 10px #FFD700;
+}
+
+/* Background Slider Styles */
+.background-slider {
+  position: relative;
+  overflow: hidden;
+  height: 70vh;
+}
+
+.background-slider-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 1s ease-in-out;
+}
+
+.background-slider-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
+  opacity: 0.7;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.5); /* Yellow with opacity */
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.slider-dot.active {
+  background: #FFD700; /* Bright yellow */
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #4a5568;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #718096;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #8090a0;
+}
