@@ -127,6 +127,10 @@ const MyOrdersPage = () => {
                                             </span>
                                         )}
                                     </div>
+                                    <div className="mt-2 text-sm">
+                                        <p className="text-gray-700">Customer: {user.name}</p>
+                                        <p className="text-gray-700">Phone: {user.phone}</p>
+                                    </div>
                                 </div>
                                 <div className="mt-4 md:mt-0 text-right">
                                     <div className="text-2xl font-bold">₹{order.totalAmount}</div>

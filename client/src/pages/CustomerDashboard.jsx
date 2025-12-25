@@ -106,7 +106,9 @@ const CustomerDashboard = () => {
     const matchesStatus = filters.status === 'all' || order.status.toLowerCase() === filters.status.toLowerCase();
     const matchesSearch = searchTerm === '' || 
       order.stall.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user?.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user?.phone && user.phone.toLowerCase().includes(searchTerm.toLowerCase()));
     
     return matchesDate && matchesStatus && matchesSearch;
   });
@@ -267,6 +269,10 @@ const CustomerDashboard = () => {
                       <div>
                         <h3 className="font-bold text-gray-900">{order.stall.name}</h3>
                         <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                        <div className="mt-1">
+                          <p className="text-xs text-gray-600">Customer: {user.name}</p>
+                          <p className="text-xs text-gray-600">Phone: {user.phone}</p>
+                        </div>
                       </div>
                       <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
                         order.status === 'Pending' ? 'bg-yellow-50 text-yellow-700' :
@@ -377,6 +383,10 @@ const CustomerDashboard = () => {
                           <p className="text-xs text-gray-400">ID: {order._id.substring(0, 8)}...</p>
                           <span className="text-gray-300 text-xs">•</span>
                           <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</p>
+                        </div>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-700">Customer: {user.name}</p>
+                          <p className="text-sm text-gray-700">Phone: {user.phone}</p>
                         </div>
                       </div>
                       <div className="text-right">

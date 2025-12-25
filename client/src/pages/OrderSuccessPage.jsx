@@ -1,13 +1,15 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle, Home, Download, Printer, Clock, CreditCard, IndianRupee } from 'lucide-react';
 import jsPDF from 'jspdf';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import apiClient from '../api/axiosConfig';
+import AuthContext from '../context/AuthContext';
 
 const OrderSuccessPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { id: orderId } = useParams(); // Get orderId from URL params
+    const { user } = useContext(AuthContext);
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -71,6 +73,8 @@ const OrderSuccessPage = () => {
     const generateReceipt = () => {
         const receiptData = {
             orderId: order._id,
+            customerName: user?.name || order.customerName || 'N/A',
+            customerPhone: user?.phone || order.customerPhone || 'N/A',
             stallName: order.stallName || order.stall?.name || 'Stall',
             items: order.items,
             totalAmount: order.totalAmount,
@@ -89,12 +93,14 @@ const OrderSuccessPage = () => {
 
         doc.setFontSize(12);
         doc.text(`Order ID: ${receiptData.orderId}`, 10, 40);
-        doc.text(`Stall Name: ${receiptData.stallName}`, 10, 47);
-        doc.text(`Order Type: ${receiptData.orderType}`, 10, 54);
-        doc.text(`Payment Method: ${receiptData.paymentMethod} (${receiptData.paymentStatus})`, 10, 61);
-        doc.text(`Order Date: ${receiptData.createdAt}`, 10, 68);
+        doc.text(`Customer Name: ${receiptData.customerName}`, 10, 47);
+        doc.text(`Customer Phone: ${receiptData.customerPhone}`, 10, 54);
+        doc.text(`Stall Name: ${receiptData.stallName}`, 10, 61);
+        doc.text(`Order Type: ${receiptData.orderType}`, 10, 68);
+        doc.text(`Payment Method: ${receiptData.paymentMethod} (${receiptData.paymentStatus})`, 10, 75);
+        doc.text(`Order Date: ${receiptData.createdAt}`, 10, 82);
         if (receiptData.tokenNumber) {
-            doc.text(`Token Number: ${receiptData.tokenNumber}`, 10, 75);
+            doc.text(`Token Number: ${receiptData.tokenNumber}`, 10, 89);
         }
 
         // Add items table
@@ -183,6 +189,16 @@ const OrderSuccessPage = () => {
                         <div className="flex justify-between border-b pb-2">
                             <span className="text-gray-600">Order ID</span>
                             <span className="font-mono text-sm font-medium">{order._id}</span>
+                        </div>
+                        
+                        <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-600">Customer Name</span>
+                            <span className="font-medium">{user?.name || order.customerName || 'N/A'}</span>
+                        </div>
+                        
+                        <div className="flex justify-between border-b pb-2">
+                            <span className="text-gray-600">Customer Phone</span>
+                            <span className="font-medium">{user?.phone || order.customerPhone || 'N/A'}</span>
                         </div>
                         
                         <div className="flex justify-between border-b pb-2">
